@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+*.sqlite
+.DS_Store
+Thumbs.db

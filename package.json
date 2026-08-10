@@ -1,0 +1,17 @@
+{
+  "name": "cmp321-week4-business-logic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Week 4 teaching example: a service layer with CRUD logic and exception handling over the Week 3 Kokoa Treda models",
+  "scripts": {
+    "demo": "node demo.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "sequelize": "^6.37.0",
+    "sqlite3": "^6.0.1"
+  },
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0"
+  }
+}
