@@ -9,18 +9,31 @@ const {
 
 // The Service Layer (Fowler): callers — a route handler, a CLI, a test —
 // talk to ONE object that knows the business rules. They never touch
-// Farmer/Purchase (the ORM models) or SQL directly. That boundary is the
-// whole point: swap the storage engine later and this file's public API
-// does not have to change.
+// Farmer/Purchase (the ORM models) or SQL directly.
 class PurchaseService {
   constructor({ Farmer, Purchase }) {
     this.Farmer = Farmer;
     this.Purchase = Purchase;
   }
 
+  // Compatibility helper: older Sequelize versions used `findById`,
+  // newer versions use `findByPk`. Provide a single place to call.
+  async _findFarmerByPk(id) {
+    if (typeof this.Farmer.findByPk === "function") {
+      return this.Farmer.findByPk(id);
+    }
+    if (typeof this.Farmer.findById === "function") {
+      return this.Farmer.findById(id);
+    }
+    if (typeof this.Farmer.findOne === "function") {
+      return this.Farmer.findOne({ where: { id } });
+    }
+    return null;
+  }
+
   // ---- Create ----------------------------------------------------------
   async recordPurchase({ farmerId, weightKg, pricePerKg }) {
-    const farmer = await this.Farmer.findByPk(farmerId);
+    const farmer = await this._findFarmerByPk(farmerId);
     if (!farmer) {
       throw new FarmerNotFoundError(farmerId);
     }
@@ -28,9 +41,6 @@ class PurchaseService {
     try {
       return await this.Purchase.create({ farmerId, weightKg, pricePerKg });
     } catch (error) {
-      // Translate the ORM's validation error into a business-layer
-      // exception. Callers of this service should never need to know
-      // Sequelize exists.
       if (error instanceof ValidationError) {
         throw new InvalidPurchaseError(error.errors.map((e) => e.message).join("; "));
       }
@@ -40,7 +50,7 @@ class PurchaseService {
 
   // ---- Read --------------------------------------------------------------
   async getTotalOwed(farmerId) {
-    const farmer = await this.Farmer.findByPk(farmerId);
+    const farmer = await this._findFarmerByPk(farmerId);
     if (!farmer) {
       throw new FarmerNotFoundError(farmerId);
     }
@@ -52,7 +62,7 @@ class PurchaseService {
   }
 
   async listPurchases(farmerId) {
-    const farmer = await this.Farmer.findByPk(farmerId);
+    const farmer = await this._findFarmerByPk(farmerId);
     if (!farmer) {
       throw new FarmerNotFoundError(farmerId);
     }
@@ -85,6 +95,24 @@ class PurchaseService {
       throw new PurchaseNotFoundError(purchaseId);
     }
     await purchase.destroy();
+  }
+
+  // ---- Read (new) ----------------------------------------------------------
+  async getAveragePricePerKg(farmerId) {
+    const farmer = await this._findFarmerByPk(farmerId);
+    if (!farmer) {
+      throw new FarmerNotFoundError(farmerId);
+    }
+
+    const purchases = await this.Purchase.findAll({ where: { farmerId } });
+    if (purchases.length === 0) {
+      return 0; // no purchases yet
+    }
+
+    const totalWeight = purchases.reduce((sum, p) => sum + p.weightKg, 0);
+    const totalCost = purchases.reduce((sum, p) => sum + p.weightKg * p.pricePerKg, 0);
+
+    return Number((totalCost / totalWeight).toFixed(2));
   }
 }
 
