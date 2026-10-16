@@ -1,5 +1,5 @@
+config.local.php
+.env
+.env.*
 node_modules/
-coverage/
-*.sqlite
-.DS_Store
-Thumbs.db
+*.log
