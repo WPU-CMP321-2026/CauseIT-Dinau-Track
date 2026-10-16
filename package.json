@@ -1,0 +1,24 @@
+{
+  "name": "dinau-treck",
+  "version": "1.0.0",
+  "description": "A private, one-screen ledger for Iven to record who owes him money (dinaus).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WPU-CMP321-2026/CauseIT-Dinau-Track.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/WPU-CMP321-2026/CauseIT-Dinau-Track/issues"
+  },
+  "homepage": "https://github.com/WPU-CMP321-2026/CauseIT-Dinau-Track#readme"
+}
