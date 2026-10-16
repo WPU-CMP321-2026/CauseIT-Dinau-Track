@@ -16,6 +16,7 @@ function json_input(): array
     return is_array($data) ? $data : [];
 }
 
+/** @param mixed $data */
 function respond($data, int $status = 200): void
 {
     http_response_code($status);

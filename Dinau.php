@@ -15,6 +15,7 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
   <title>Dinau Treck</title>
   <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
   <link rel="stylesheet" href="assets/css/app.css?v=<?= filemtime(__DIR__ . '/assets/css/app.css') ?>">
+  <script src="assets/js/logic.js?v=<?= filemtime(__DIR__ . '/assets/js/logic.js') ?>"></script>
   <script src="assets/js/app.js?v=<?= filemtime(__DIR__ . '/assets/js/app.js') ?>" defer></script>
 </head>
 <body>

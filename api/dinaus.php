@@ -33,10 +33,15 @@ function fetch_one(PDO $pdo, int $id): array
 {
     $s = $pdo->prepare('SELECT id, customer_name, amount, note, due_date, created_at, paid_at FROM dinaus WHERE id = :id');
     $s->execute([':id' => $id]);
-    return present($s->fetch());
+    $row = $s->fetch();
+    if (!$row) {
+        respond_error('Not found.', 404);
+    }
+    return present($row);
 }
 
-/** Accepts "5", "5.5", "5,50", "K5.00". Returns a string like "5.50" or null. */
+/** Accepts "5", "5.5", "5,50", "K5.00". Returns a string like "5.50" or null.
+ * @param mixed $raw @return string|null */
 function parse_amount($raw): ?string
 {
     $s = trim((string) $raw);
@@ -52,7 +57,8 @@ function parse_amount($raw): ?string
     return number_format($n, 2, '.', '');
 }
 
-/** Clean ids from the request body. */
+/** Clean ids from the request body.
+ * @param mixed $raw @return int[] */
 function clean_ids($raw): array
 {
     if (!is_array($raw)) {

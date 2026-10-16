@@ -14,7 +14,19 @@ try {
 
     $pdo = db_connect();
     $sql = preg_replace('/^\s*--.*$/m', '', file_get_contents(__DIR__ . '/../schema.sql'));
-    foreach (array_filter(array_map('trim', explode(';', $sql))) as $statement) {
+    // Split on ';' only when it is outside single/double quotes, so a semicolon
+    // inside a string literal never breaks a statement in two.
+    $statements = [];
+    $buffer = '';
+    foreach (preg_split('/(\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|;)/s', $sql, -1, PREG_SPLIT_DELIM_CAPTURE) as $part) {
+        $buffer .= $part;
+        if ($part === ';') {
+            $statements[] = trim($buffer);
+            $buffer = '';
+        }
+    }
+    if (trim($buffer) !== '') $statements[] = trim($buffer);
+    foreach (array_filter($statements) as $statement) {
         $pdo->exec($statement);
     }
     echo "Database '" . DB_NAME . "' is ready.\n";

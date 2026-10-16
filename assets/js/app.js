@@ -7,7 +7,8 @@
   const API = 'api/dinaus.php';
   const CSRF = document.querySelector('meta[name="csrf-token"]').content;
   const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  // Pure helpers (grouping, money, dates) live in assets/js/logic.js for tests.
+  const { MONTHS, keyOf, parseCents, dayDiff, dayLabel, midSentence, hueOf, groupsFor } = window.Logic;
 
   const state = {
     dinaus: [],
@@ -57,35 +58,7 @@
 
   const fmt = (cents) => (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const money = (cents) => 'K' + fmt(cents);
-  const keyOf = (name) => name.toLowerCase();
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-
-  function parseCents(raw) {
-    const s = String(raw).trim().replace(',', '.');
-    if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
-    const c = Math.round(parseFloat(s) * 100);
-    return c > 0 ? c : null;
-  }
-
-  function dayDiff(a, b) { // whole days from a to b, both 'YYYY-MM-DD'
-    const t = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
-    return Math.round((t(b) - t(a)) / 86400000);
-  }
-  function dayLabel(stamp) {
-    const d = stamp.slice(0, 10);
-    const diff = dayDiff(d, state.today);
-    if (diff === 0) return 'Today';
-    if (diff === 1) return 'Yesterday';
-    const year = d.slice(0, 4) === state.today.slice(0, 4) ? '' : ' ' + d.slice(0, 4);
-    return `${+d.slice(8, 10)} ${MONTHS[+d.slice(5, 7) - 1]}${year}`;
-  }
-  /** 'Today' -> 'today' mid-sentence, but leave dates like '14 Oct' alone. */
-  const midSentence = (label) => (label === 'Today' || label === 'Yesterday' ? label.toLowerCase() : label);
-  function hueOf(name) {
-    let n = 0;
-    for (const ch of name) n = (n * 31 + ch.codePointAt(0)) % 360;
-    return n;
-  }
 
   /* ------------------------------------------------------------------- API */
 
@@ -149,28 +122,8 @@
   /* ------------------------------------------------------------ data views */
 
   /** Customers (grouped by name, ignoring capital letters) for one tab. */
-  function groupsFor(tab, applySearch) {
-    const wantPaid = tab === 'paid';
-    const map = new Map();
-    for (const d of state.dinaus) {
-      if (!!d.paid_at !== wantPaid) continue;
-      const key = keyOf(d.name);
-      let g = map.get(key);
-      if (!g) { g = { key, name: d.name, items: [], cents: 0, latest: '' }; map.set(key, g); }
-      g.items.push(d);
-      g.cents += d.cents;
-      const stamp = wantPaid ? d.paid_at : d.created_at;
-      if (stamp > g.latest) g.latest = stamp;
-    }
-    let list = [...map.values()];
-    const q = state.q.trim().toLowerCase();
-    if (applySearch && q) {
-      list = list.filter((g) => g.key.includes(q) || g.items.some((i) => (i.note || '').toLowerCase().includes(q)));
-    }
-    list.sort(wantPaid
-      ? (a, b) => (a.latest < b.latest ? 1 : -1)
-      : (a, b) => b.cents - a.cents || a.name.localeCompare(b.name));
-    return list;
+  function groupsForTab(tab, applySearch) {
+    return groupsFor(state.dinaus, tab, state.q, applySearch);
   }
 
   /* ----------------------------------------------------------------- hero */
@@ -193,7 +146,7 @@
   }
 
   function renderHero() {
-    const owing = groupsFor('owing', false);
+    const owing = groupsForTab('owing', false);
     const total = owing.reduce((s, g) => s + g.cents, 0);
     const count = owing.reduce((s, g) => s + g.items.length, 0);
     setHero(total);
@@ -212,12 +165,12 @@
   }
 
   function itemRow(d, paidTab) {
-    const meta = [h('span', { text: paidTab ? 'Paid ' + dayLabel(d.paid_at) : dayLabel(d.created_at) })];
+    const meta = [h('span', { text: paidTab ? 'Paid ' + dayLabel(d.paid_at, state.today) : dayLabel(d.created_at, state.today) })];
     if (!paidTab && d.due_date) {
       const left = dayDiff(state.today, d.due_date);
       if (left < 0) meta.push(h('span', { class: 'pill pill-overdue', text: `Overdue ${plural(-left, 'day', 'days')}` }));
       else if (left === 0) meta.push(h('span', { class: 'pill pill-due', text: 'Due today' }));
-      else meta.push(h('span', { class: 'pill pill-due', text: 'Due ' + dayLabel(d.due_date) }));
+      else meta.push(h('span', { class: 'pill pill-due', text: 'Due ' + dayLabel(d.due_date, state.today) }));
     }
     const label = `${money(d.cents)} for ${d.name}`;
     return h('li', { class: 'item', 'data-id': d.id },
@@ -236,11 +189,11 @@
     const bodyId = 'body-' + index;
     let meta;
     if (paidTab) {
-      meta = [h('span', { text: `${plural(g.items.length, 'dinau', 'dinaus')} paid · last ${midSentence(dayLabel(g.latest))}` })];
+      meta = [h('span', { text: `${plural(g.items.length, 'dinau', 'dinaus')} paid · last ${midSentence(dayLabel(g.latest, state.today))}` })];
     } else {
       const oldest = g.items.reduce((m, i) => (i.created_at < m ? i.created_at : m), g.items[0].created_at);
       const overdue = g.items.some((i) => i.due_date && i.due_date < state.today);
-      meta = [h('span', { text: g.items.length === 1 ? dayLabel(oldest) : `${g.items.length} dinaus · since ${midSentence(dayLabel(oldest))}` })];
+      meta = [h('span', { text: g.items.length === 1 ? dayLabel(oldest, state.today) : `${g.items.length} dinaus · since ${midSentence(dayLabel(oldest, state.today))}` })];
       if (overdue) meta.push(' ', h('span', { class: 'pill pill-overdue', text: 'Overdue' }));
     }
 
@@ -282,7 +235,7 @@
   function renderList() {
     const list = $('list');
     const paidTab = state.tab === 'paid';
-    const groups = groupsFor(state.tab, true);
+    const groups = groupsForTab(state.tab, true);
     list.classList.toggle('no-anim', !state.animate);
     state.animate = false;
     list.setAttribute('aria-busy', 'false');
@@ -302,7 +255,7 @@
   }
 
   function renderTabs() {
-    const owing = groupsFor('owing', false).length, paid = groupsFor('paid', false).length;
+    const owing = groupsForTab('owing', false).length, paid = groupsForTab('paid', false).length;
     $('countOwing').textContent = owing;
     $('countPaid').textContent = paid;
     for (const t of document.querySelectorAll('.tab')) {
@@ -362,7 +315,7 @@
     const keys = new Set(state.dinaus.filter((d) => wanted.has(d.id)).map((d) => keyOf(d.name)));
     const list = $('list');
     for (const key of keys) {
-      const g = groupsFor(state.tab, false).find((x) => x.key === key);
+      const g = groupsForTab(state.tab, false).find((x) => x.key === key);
       const card = list.querySelector(`[data-key="${CSS.escape(key)}"]`);
       if (!g || !card) continue;
       if (g.items.every((i) => wanted.has(i.id))) card.classList.add('is-leaving');
@@ -376,51 +329,78 @@
 
   const nowStamp = () => state.today + ' 12:00:00';
 
-  async function setPaid(ids, paid, message, offerUndo, animate = true) {
-    const targets = state.dinaus.filter((d) => ids.includes(d.id));
+  /**
+   * Shared optimistic update: mutate local state first, show the toast (with
+   * optional undo), then send the change; if the API call fails, roll back.
+   * opts: ids, select(ids), animate, apply(targets), rollback(targets),
+   *       action, extra (api body fields), message, offerUndo, undo.
+   */
+  async function optimisticUpdate(ids, opts) {
+    const targets = opts.select(ids);
     if (!targets.length) return;
-    const before = targets.map((d) => ({ d, paid_at: d.paid_at }));
-    if (animate) await leave(ids);
-    for (const t of targets) t.paid_at = paid ? nowStamp() : null;
-    if (!paid) { state.highlight = keyOf(targets[0].name); state.open.add(state.highlight); }
+    if (opts.animate) await leave(ids);
+    opts.apply(targets);
     render();
-    toast(message, offerUndo ? { undo: () => setPaid(ids, !paid, paid ? 'Back in Owing.' : 'Marked paid again.', false, false) } : {});
+    toast(opts.message, opts.offerUndo ? { undo: opts.undo } : {});
     try {
-      await api('POST', { action: 'set_paid', ids, paid });
+      await api('POST', { action: opts.action, ids, ...opts.extra });
     } catch (err) {
-      for (const b of before) b.d.paid_at = b.paid_at;
+      await opts.rollback(targets);
       render();
       toast('Not saved. ' + err.message, { error: true });
     }
   }
 
+  async function setPaid(ids, paid, message, offerUndo, animate = true) {
+    let before = [];
+    await optimisticUpdate(ids, {
+      select: (idList) => {
+        const targets = state.dinaus.filter((d) => idList.includes(d.id));
+        before = targets.map((d) => ({ d, paid_at: d.paid_at }));
+        return targets;
+      },
+      animate,
+      apply: (targets) => {
+        for (const t of targets) t.paid_at = paid ? nowStamp() : null;
+        if (!paid) { state.highlight = keyOf(targets[0].name); state.open.add(state.highlight); }
+      },
+      rollback: () => { for (const b of before) b.d.paid_at = b.paid_at; },
+      action: 'set_paid',
+      extra: { paid },
+      message,
+      offerUndo,
+      undo: () => setPaid(ids, !paid, paid ? 'Back in Owing.' : 'Marked paid again.', false, false),
+    });
+  }
+
   async function removeIds(ids, removed, message, offerUndo, animate = true) {
-    let targets;
-    if (removed) {
-      targets = state.dinaus.filter((d) => ids.includes(d.id));
-      if (!targets.length) return;
-      if (animate) await leave(ids);
-      state.dinaus = state.dinaus.filter((d) => !ids.includes(d.id));
-    } else {
-      targets = removedCache.filter((d) => ids.includes(d.id));
-      state.dinaus.push(...targets);
-      state.dinaus.sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : b.id - a.id));
-      if (targets[0]) { state.highlight = keyOf(targets[0].name); state.open.add(state.highlight); }
-    }
-    if (removed) removedCache = targets;
-    render();
-    toast(message, offerUndo ? { undo: () => removeIds(ids, !removed, removed ? 'Brought back.' : 'Removed.', false, false) } : {});
-    try {
-      await api('POST', { action: 'remove', ids, removed });
-    } catch (err) {
-      await load(false);
-      toast('Not saved. ' + err.message, { error: true });
-    }
+    await optimisticUpdate(ids, {
+      select: (idList) => removed
+        ? state.dinaus.filter((d) => idList.includes(d.id))
+        : removedCache.filter((d) => idList.includes(d.id)),
+      animate: removed && animate,
+      apply: (targets) => {
+        if (removed) {
+          state.dinaus = state.dinaus.filter((d) => !ids.includes(d.id));
+          removedCache = targets;
+        } else {
+          state.dinaus.push(...targets);
+          state.dinaus.sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : b.id - a.id));
+          if (targets[0]) { state.highlight = keyOf(targets[0].name); state.open.add(state.highlight); }
+        }
+      },
+      rollback: async () => { removedCache = []; await load(false); },
+      action: 'remove',
+      extra: { removed },
+      message,
+      offerUndo,
+      undo: () => removeIds(ids, !removed, removed ? 'Brought back.' : 'Removed.', false, false),
+    });
   }
   let removedCache = [];
 
   function findGroup(card) {
-    return groupsFor(state.tab, false).find((g) => g.key === card.dataset.key);
+    return groupsForTab(state.tab, false).find((g) => g.key === card.dataset.key);
   }
 
   $('list').addEventListener('click', (e) => {
