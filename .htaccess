@@ -1,0 +1,21 @@
+# Block private files. Character classes ([.]) are used instead of backslashes
+# so the patterns behave the same on every Apache version.
+<FilesMatch "^[.]">
+  Require all denied
+</FilesMatch>
+<FilesMatch "[.](sql|md|example[.]php|log)$">
+  Require all denied
+</FilesMatch>
+<Files "config.local.php">
+  Require all denied
+</Files>
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^scripts(/|$) - [F,L]
+  RewriteRule ^migrations(/|$) - [F,L]
+  RewriteRule ^docs(/|$) - [F,L]
+  RewriteRule (^|/)[.]git(/|$) - [F,L]
+</IfModule>
