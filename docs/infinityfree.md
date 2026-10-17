@@ -10,11 +10,11 @@ You need PHP 8.0+ (with PDO MySQL) and one MySQL database from the InfinityFree 
    ```sql
    INSERT INTO users (username, password_hash) VALUES ('iven', 'PASTE_HASH_HERE');
    ```
-5. Upgrading from the old version? Back up, then run `migrations/002_simplify.sql` once in the SQL tab.
+5. Upgrading an existing site? Back up (phpMyAdmin > Export), then run `migrations/003_limits_and_repayments.sql` once in the SQL tab. Do not import `schema.sql` over an existing database.
 
 ## 2. Upload
 1. Copy `config.local.example.php` to `config.local.php` and fill in the values from step 1.
-2. Upload these into `htdocs`: `api/`, `assets/`, `.htaccess`, `auth.php`, `config.php`, `config.local.php`, `index.php`, `login.php`, `logout.php`, `Dinau.php`.
+2. Upload these into `htdocs`: `api/`, `assets/`, `services/`, `.htaccess`, `auth.php`, `config.php`, `config.local.php`, `index.php`, `login.php`, `logout.php`, `Dinau.php`.
 3. Do **not** upload `scripts/`, `migrations/`, `docs/`, `schema.sql`, `README.md` or any `.env` file.
 4. Turn on HTTPS in the panel, open the site, sign in and record a test dinau.
 

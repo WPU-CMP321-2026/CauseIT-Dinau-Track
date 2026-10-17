@@ -55,7 +55,7 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
             <div class="money">
               <span class="money-k" aria-hidden="true">K</span>
               <input type="text" id="amount" name="amount" inputmode="decimal" placeholder="0.00"
-                     aria-describedby="amountError" autocomplete="off">
+                     autocomplete="off">
             </div>
           </div>
           <div class="field field-note">
@@ -65,6 +65,15 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
         </div>
 
         <p class="hint" id="nameHint" aria-live="polite"></p>
+
+        <!-- Over the credit limit: the dinau cannot be recorded until this is fixed -->
+        <div class="limit-block" id="limitBlock" role="alert" hidden>
+          <p id="limitMsg"></p>
+          <div class="limit-block-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="blockPay" hidden>Record a payment</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="blockLimit">Change the limit</button>
+          </div>
+        </div>
         <p class="error" id="formError" role="alert" hidden></p>
 
         <div class="due-row">
@@ -76,7 +85,7 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" id="saveBtn">
-          <span class="btn-label">Record dinau</span>
+          <span class="btn-label" id="saveLabel">Record dinau</span>
           <span class="spinner" aria-hidden="true"></span>
         </button>
       </form>
@@ -99,18 +108,44 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
       <div id="list" class="list" role="tabpanel" aria-labelledby="tabOwing" aria-busy="true"></div>
     </section>
 
+    <!-- The credit limit: Iven can set it to any amount -->
+    <details class="help card" id="settingsBox">
+      <summary>Credit limit</summary>
+      <form id="limitForm" class="inline-form settings-form" novalidate>
+        <p class="hint" id="limitHint">The most any customer may owe you at once. A dinau that would go over it cannot be recorded until they pay something or you raise the limit. Leave it empty for no limit.</p>
+        <label for="defaultLimit" class="sr-only">Credit limit in kina</label>
+        <div class="money"><span class="money-k" aria-hidden="true">K</span><input type="text" id="defaultLimit" inputmode="decimal" placeholder="No limit" autocomplete="off"></div>
+        <button type="submit" class="btn btn-primary btn-sm">Save limit</button>
+        <p class="error" id="limitError" role="alert" hidden></p>
+      </form>
+    </details>
+
     <!-- Help: short and always available -->
     <details class="help card">
       <summary>How does this work?</summary>
       <ol>
         <li><strong>Record:</strong> type the customer's name and the amount, then press <kbd>Enter</kbd>. New names are added for you.</li>
-        <li><strong>Get paid:</strong> tap the green tick. It moves to the <em>Paid</em> tab.</li>
-        <li><strong>Made a mistake?</strong> Tap <em>Undo</em> in the message at the bottom, or <em>Unpay</em> in the Paid tab.</li>
-        <li><strong>Tap a name</strong> to see what they bought and when.</li>
+        <li><strong>Credit limit:</strong> if a dinau would take someone over the limit, it is not recorded. Record a payment or raise the limit, then try again.</li>
+        <li><strong>Get paid:</strong> tap the green tick for one dinau, <em>All paid</em> for everything, or <em>Part payment</em> when they pay some. The balance still owed updates straight away.</li>
+        <li><strong>Made a mistake?</strong> Tap <em>Undo</em> in the message at the bottom, or the bin next to a payment.</li>
+        <li><strong>Tap a name</strong> to see what they owe, what they have paid and every dinau. <em>Statement</em> lets them see it too.</li>
       </ol>
     </details>
     </main>
   </div>
+
+  <!-- A customer's statement: what they took, what they paid, what is still owed -->
+  <dialog id="sheet" class="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet-inner">
+      <h2 id="sheetTitle"></h2>
+      <div id="sheetBody"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="sheetCopy">Copy text</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="sheetPrint">Print</button>
+        <button type="button" class="btn btn-primary btn-sm" id="sheetDone" autofocus>Done</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- Undo / status messages -->
   <div class="toast-zone" aria-live="polite" aria-atomic="true">

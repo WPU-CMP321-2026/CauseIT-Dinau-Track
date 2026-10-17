@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"No tests required for pure PHP/JS project\""
+    "test": "node --test"
   },
   "repository": {
     "type": "git",

@@ -17,6 +17,7 @@
   --gold: #c28a3a;
   --gold-l: #f4c978;
   --green: #17895a;
+  --green-text: #0d6a42;
   --green-bg: #e3f5ec;
   --red: #c93a3a;
   --red-text: #a12424;
@@ -30,7 +31,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0f1424; --card: #171e35; --ink: #eef0f7; --muted: #a2a9bf; --line: #2a3354;
-    --green: #4fd69b; --green-bg: #12342a; --red: #ff8585; --red-text: #ff8585; --red-bg: #3a1c24; --amber-bg: #3b3017;
+    --green: #4fd69b; --green-text: #4fd69b; --green-bg: #12342a; --red: #ff8585; --red-text: #ff8585; --red-bg: #3a1c24; --amber-bg: #3b3017;
     --focus: #8fa8ff; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   }
 }
@@ -77,7 +78,7 @@ button { cursor: pointer; }
 .btn:active { transform: scale(.97); }
 .btn-primary { color: #fff; background: linear-gradient(135deg, #2d4296, var(--navy-d)); box-shadow: 0 6px 16px rgba(31,47,102,.35); }
 .btn-primary:hover { box-shadow: 0 8px 22px rgba(31,47,102,.45); transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
+.btn-ghost { background: transparent; color: color-mix(in srgb, var(--ink) 82%, var(--bg)); border: 1px solid var(--line); font-weight: 600; }
 .btn-ghost:hover { background: var(--card); color: var(--ink); }
 .btn-sm { min-height: 40px; padding: 0 14px; font-size: .9rem; }
 .btn-block { width: 100%; }
@@ -163,7 +164,7 @@ input.is-invalid { border-color: var(--red); background: var(--red-bg); animatio
 .person-name { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .person-meta { font-size: .85rem; color: var(--muted); }
 .person-amount { font-weight: 800; font-size: 1.2rem; white-space: nowrap; text-align: right; }
-.person-amount.is-paid { color: var(--green); }
+.person-amount.is-paid { color: var(--green-text); }
 .chev { flex: none; width: 20px; height: 20px; color: var(--muted); transition: transform .3s var(--ease); }
 .person.is-open .chev { transform: rotate(180deg); }
 
@@ -189,7 +190,7 @@ input.is-invalid { border-color: var(--red); background: var(--red-bg); animatio
 .pill-overdue { background: var(--red-bg); color: var(--red-text); }
 .pill-due { background: var(--amber-bg); color: #8a5a00; }
 @media (prefers-color-scheme: dark) { .pill-due { color: var(--gold-l); } }
-.pill-paid { background: var(--green-bg); color: var(--green); }
+.pill-paid { background: var(--green-bg); color: var(--green-text); }
 .item-amount { font-weight: 800; white-space: nowrap; }
 .item-btn { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 0; background: none; color: var(--muted); transition: background .2s, color .2s, transform .15s; }
 .item-btn svg { width: 20px; height: 20px; }
@@ -252,3 +253,68 @@ input.is-invalid { border-color: var(--red); background: var(--red-bg); animatio
 .help ol { margin: 0; padding: 0 18px 16px 38px; color: var(--muted); display: grid; gap: 8px; animation: rise .3s var(--ease); }
 .help strong { color: var(--ink); }
 kbd { padding: 1px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; font: inherit; font-size: .85em; background: var(--bg); }
+
+/* ---------- Credit limit: the dinau is refused until this is resolved ---------- */
+.limit-block { margin: 12px 0 4px; padding: 14px 16px; border-radius: 14px; border: 2px solid var(--red); background: var(--red-bg); color: var(--red-text); font-weight: 600; animation: shake .35s; }
+.limit-block p { margin: 0; line-height: 1.45; }
+.limit-block-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.limit-block .btn-ghost { background: var(--card); color: var(--ink); border-color: var(--red); }
+.btn.is-blocked, .btn.is-blocked:hover { background: var(--red-text); box-shadow: none; transform: none; opacity: 1; cursor: not-allowed; }
+.btn.is-blocked[disabled] { opacity: .92; }
+
+/* ---------- Customer card: what is owed, what is paid, the limit ---------- */
+.person-body > div { padding-top: 4px; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding: 12px 14px 4px; border-top: 1px solid var(--line); }
+.sum-cell { padding: 10px 8px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 5%, transparent); text-align: center; min-width: 0; }
+.sum-cell dt { font-size: .76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.sum-cell dd { margin: 2px 0 0; font-weight: 800; font-size: 1.05rem; overflow-wrap: anywhere; }
+.sum-cell.is-paid dd { color: var(--green-text); }
+.sum-cell.is-owed { background: var(--amber-bg); }
+.sum-cell.is-owed dd { font-size: 1.2rem; }
+
+.limitrow { padding: 10px 14px 0; }
+.limit-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.limit-text { font-size: .9rem; color: var(--muted); font-weight: 600; }
+.limit-text.is-over { color: var(--red-text); }
+.limit-bar { height: 8px; margin-top: 8px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+.limit-fill { display: block; height: 100%; width: calc(var(--pct, 0) * 1%); border-radius: inherit; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width .6s var(--ease); }
+.limit-bar.is-over .limit-fill { background: var(--red); }
+.link-sm { min-height: 36px; padding: 4px 0; font-size: .9rem; margin-left: auto; }
+
+.card-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 4px; }
+.inline-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px 4px; animation: rise .25s var(--ease); }
+.inline-form[hidden] { display: none; }
+.inline-form .money { flex: 1 1 150px; max-width: 220px; }
+.inline-form .money input { min-height: 44px; }
+.inline-form .preview, .inline-form .error, .inline-form .hint { flex-basis: 100%; margin: 0; }
+.preview { color: var(--muted); font-size: .92rem; font-weight: 600; }
+.settings-form { padding: 0 18px 18px; }
+.settings-form .hint { margin: 0; }
+
+.item-btn-gap { flex: none; width: 44px; height: 44px; }
+.item-amount.is-paid { color: var(--green-text); }
+.item.is-payment { background: color-mix(in srgb, var(--green-bg) 55%, transparent); border-radius: 12px; margin: 0 -8px; padding-left: 8px; padding-right: 8px; }
+
+/* ---------- Statement dialog ---------- */
+.sheet { width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 32px); padding: 0; border: 1px solid var(--line); border-radius: 22px; background: var(--card); color: var(--ink); box-shadow: 0 30px 70px rgba(0, 0, 0, .35); overflow: auto; }
+.sheet::backdrop { background: rgba(15, 20, 36, .55); backdrop-filter: blur(3px); }
+.sheet[open] { animation: rise .3s var(--ease); }
+.sheet-inner { padding: 22px 20px 18px; }
+.sheet-inner h2 { font-size: 1.25rem; margin-bottom: 12px; overflow-wrap: anywhere; }
+.sheet-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.stmt { list-style: none; margin: 0 0 12px; padding: 0; }
+.stmt-head, .stmt-row { display: grid; grid-template-columns: 5.5rem 1fr auto auto; gap: 8px; align-items: baseline; padding: 8px 0; }
+.stmt-head { font-size: .76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid var(--line); }
+.stmt-row { border-bottom: 1px dashed var(--line); }
+.stmt-label { overflow-wrap: anywhere; }
+.stmt-amt, .stmt-bal { font-weight: 800; text-align: right; white-space: nowrap; }
+.stmt-amt.is-paid { color: var(--green-text); }
+.stmt-bal { min-width: 4.5rem; }
+.stmt-head span:nth-child(n+3) { text-align: right; }
+.sheet .summary { padding: 4px 0 0; border-top: 0; }
+
+@media print {
+  body { background: #fff; }
+  .bg-orbs, .shell, .toast-zone, .sheet::backdrop, .sheet-actions { display: none !important; }
+  .sheet { position: static; width: 100%; max-height: none; box-shadow: none; border: 0; overflow: visible; }
+}

@@ -1,3 +1,4 @@
+-- NOTE: after this file, also run 003_limits_and_repayments.sql (it adds credit limits and part payments).
 -- Run ONCE, only if you have data from the old version (customers /
 -- transactions tables). Fresh installs: import schema.sql and skip this.
 -- BACK UP the database first. This copies your old data into the new
