@@ -1,4 +1,4 @@
-name: Project Verification
+name: Tests
 
 on:
   push:
@@ -8,11 +8,34 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  node-tests:
+    name: Unit tests (logic.js)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Validate Environment
-        run: echo "Repository verified successfully for PHP/JS project structure."
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run unit tests
+        run: npm test
+
+  php-lint:
+    name: PHP syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: curl, pdo_mysql, mbstring
+
+      - name: Lint every PHP file
+        run: |
+          find . -name '*.php' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l
