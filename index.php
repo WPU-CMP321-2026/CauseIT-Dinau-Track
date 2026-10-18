@@ -1,4 +1,3 @@
 <?php
-require 'auth.php';
-header('Location: ' . (is_logged_in() ? 'Dinau.php' : 'login.php'));
+header("Location: Dinau.html");
 exit;
