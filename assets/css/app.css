@@ -313,6 +313,138 @@ kbd { padding: 1px 7px; border: 1px solid var(--line); border-bottom-width: 2px;
 .stmt-head span:nth-child(n+3) { text-align: right; }
 .sheet .summary { padding: 4px 0 0; border-top: 0; }
 
+/* ---------- Dinau Treck mobile design ---------- */
+:root {
+  color-scheme: dark;
+  --bg: #11141a;
+  --card: #191f37;
+  --ink: #f5f6fb;
+  --muted: #a3abc0;
+  --line: #2a3657;
+  --navy: #344fa7;
+  --navy-d: #1b2a60;
+  --gold: #d8ac58;
+  --gold-l: #f0c36f;
+  --green: #56d28a;
+  --green-text: #56d28a;
+  --green-bg: #173528;
+  --red: #ff9292;
+  --red-text: #ffaaaa;
+  --red-bg: #3a202a;
+  --amber-bg: #3b301b;
+  --focus: #91a9ff;
+  --shadow: 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 44%, rgba(63, 72, 98, .28), transparent 58%),
+    linear-gradient(145deg, #2b292a 0%, #101320 48%, #151d35 100%);
+}
+
+.bg-orbs { display: none; }
+.shell { max-width: 540px; padding: 18px 16px 100px; }
+.topbar { padding: 0 0 15px; }
+.brand { font-size: 1rem; }
+.brand img { width: 36px; height: 36px; box-shadow: none; }
+
+.hero {
+  min-height: 139px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 14px;
+  padding: 20px 21px;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #20316f, #354fa8);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .2);
+}
+.hero::after {
+  width: 154px;
+  height: 154px;
+  right: -30px;
+  bottom: -69px;
+  background: linear-gradient(140deg, #f6d58a, #d6a94e);
+  opacity: 1;
+  animation: none;
+}
+.hero-label { font-size: .75rem; letter-spacing: .1em; }
+.hero-amount { font-size: clamp(2.5rem, 10vw, 3rem); }
+.hero-sub { font-size: .9rem; }
+
+.add-card {
+  margin-bottom: 0;
+  padding: 18px;
+  border-radius: 19px;
+  background: rgba(25, 33, 57, .97);
+  border-color: var(--line);
+}
+.add-card h2 { font-size: 1rem; }
+.add-grid { gap: 13px; }
+.field label, .due-panel label { font-size: .82rem; margin-bottom: 7px; }
+input[type="text"], input[type="password"], input[type="date"], input[type="search"] {
+  min-height: 45px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #101525;
+}
+input:focus { background: #101525; }
+.money input { padding-left: 34px; }
+.hint { font-size: .82rem; }
+.link-btn { color: var(--gold-l); font-size: .84rem; }
+.btn { min-height: 44px; border-radius: 13px; }
+.btn-primary { background: linear-gradient(110deg, #344fa7, #1b2a60); box-shadow: none; }
+.btn-primary:hover { box-shadow: none; }
+
+.list-section { margin-top: 26px; }
+.list-head { margin-bottom: 11px; gap: 10px; }
+.tabs { padding: 4px; border-radius: 14px; background: rgba(36, 44, 68, .86); }
+.tab { min-height: 36px; padding: 0 13px; border-radius: 10px; color: #b7bfd1; font-size: .84rem; }
+.tab.is-active { background: #151b2e; color: var(--ink); box-shadow: none; }
+.tab-count { background: rgba(178, 187, 209, .16); }
+.search { min-width: 100%; }
+.person { border-radius: 16px; background: rgba(25, 33, 57, .97); border-color: var(--line); box-shadow: none; }
+.person-toggle { min-height: 68px; gap: 10px; padding: 11px 9px 11px 12px; }
+.avatar { width: 40px; height: 40px; }
+.person-name { font-size: .94rem; }
+.person-meta { font-size: .76rem; }
+.person-amount { font-size: 1rem; }
+.pay-all { min-height: 38px; border-radius: 11px; }
+.summary { gap: 6px; padding: 10px 10px 4px; }
+.sum-cell { padding: 9px 5px; }
+.sum-cell dt { font-size: .67rem; }
+.sum-cell dd { font-size: .95rem; }
+.sum-cell.is-owed dd { font-size: 1.05rem; }
+.person-body > div { padding-top: 2px; }
+.card-actions { padding: 10px 10px 4px; }
+.items { padding-right: 10px; padding-left: 10px; border-color: var(--line); }
+.item { gap: 7px; }
+.item-note { font-size: .9rem; }
+.item-amount { font-size: .9rem; }
+.item-btn { width: 40px; height: 40px; }
+.help { background: rgba(25, 33, 57, .97); border-color: var(--line); }
+
+.login-body { padding: 24px; }
+.login-card {
+  max-width: 420px;
+  padding: 26px 23px;
+  border-radius: 24px;
+  background: rgba(25, 33, 57, .97);
+  border-color: var(--line);
+}
+.login-logo { width: 64px; height: 64px; border-radius: 18px; box-shadow: none; animation: none; }
+.login-card h1 { margin-top: 16px; font-size: 1.55rem; }
+.login-sub { margin-bottom: 22px; font-size: .9rem; }
+.login-card form { gap: 13px; }
+.login-card .field label { margin-bottom: 7px; }
+.alert-error { background: var(--red-bg); color: var(--red-text); }
+.alert-ok { background: var(--green-bg); color: var(--green-text); }
+
+@media (min-width: 620px) {
+  .shell { padding-top: 28px; }
+}
+
 @media print {
   body { background: #fff; }
   .bg-orbs, .shell, .toast-zone, .sheet::backdrop, .sheet-actions { display: none !important; }

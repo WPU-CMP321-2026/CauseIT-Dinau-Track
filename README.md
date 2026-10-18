@@ -1,6 +1,6 @@
 # Dinau Treck
 
-A private, one-screen ledger for Iven to record who owes him money (dinaus).
+A private, mobile-first ledger for Iven to record who owes him money (dinaus), with a dark sign-in screen and seller register.
 
 - Type a **name** and an **amount**, press Enter. No customer list to set up: new names are added automatically, and names you have used before are suggested as you type.
 - **Credit limit.** Iven sets the limit to any amount (or none) in the *Credit limit* box, and can give one customer their own limit on their card. A dinau that would take someone over their limit is **refused**: the screen says so before the button is pressed, and the server refuses it too. It can go ahead once the customer pays something (part payment) or the limit is raised. Example: limit K10, customer owes K6, a K5 dinau is refused (only K4.00 more is allowed).
