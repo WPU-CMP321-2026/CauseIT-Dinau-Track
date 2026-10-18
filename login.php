@@ -61,7 +61,7 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
   <meta name="theme-color" content="#1f2f66">
   <title>Sign in · Dinau Treck</title>
   <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
-  <link rel="stylesheet" href="assets/css/app.css?v=<?= filemtime(__DIR__ . '/assets/css/app.css') ?>">
+  <link rel="stylesheet" href="<?= $e(asset_url('assets/css/app.css')) ?>">
 </head>
 <body class="login-body">
   <div class="bg-orbs" aria-hidden="true"><span></span><span></span><span></span></div>

@@ -34,6 +34,13 @@ function no_store_headers(): void
     header('Pragma: no-cache');
 }
 
+/** Asset link with a cache-busting version from the file's mtime, or plain URL if the file is missing. */
+function asset_url(string $path): string
+{
+    $full = __DIR__ . '/' . $path;
+    return $path . (is_file($full) ? '?v=' . filemtime($full) : '');
+}
+
 function is_logged_in(): bool
 {
     return !empty($_SESSION['user_id']);
