@@ -22,3 +22,9 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./ 
         server-dir: /dinau-track.infinityfree.me/htdocs/
+
+                # Tell the script to ignore your server-side config file
+        exclude: |
+          **/config.local.php
+          **/.git*
+          **/.git*/**
