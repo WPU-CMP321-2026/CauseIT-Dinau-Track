@@ -10,6 +10,14 @@ A private, one-screen ledger for Iven to record who owes him money (dinaus).
 
 PHP 8.0+ and MySQL. No build step, no libraries.
 
+## Live site
+The app is hosted on **InfinityFree** and deployed automatically from this repository:
+
+**https://dinau-track.infinityfree.me/** — sign in as Iven to use it.
+
+## Deployment
+Every push to `main` triggers the GitHub Actions workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml), which syncs the repository to the InfinityFree web server over FTP (SamKirkland/FTP-Deploy-Action). Credentials live in the repo's GitHub secrets (`FTP_USERNAME`, `FTP_PASSWORD`); `config.local.php` is excluded from the sync and exists only on the server. Tests run first (`.github/workflows/test.yml`: unit tests + `php -l` on every PHP file), so a failing build is caught before deployment.
+
 ## Run it locally
 ```sh
 cp config.local.example.php config.local.php   # edit the database details
@@ -18,8 +26,8 @@ php scripts/create_user.php iven "a-strong-password"
 php -S localhost:8000                          # then open http://localhost:8000
 ```
 
-## Put it online
-See [docs/infinityfree.md](docs/infinityfree.md).
+## Put it online (manual setup)
+See [docs/infinityfree.md](docs/infinityfree.md) for the one-time host setup: creating the MySQL database, importing `schema.sql`, creating the Iven user, uploading `config.local.php` and checking that `.htaccess` blocks private files. After that, deploys happen automatically on every push to `main` (see *Deployment* above).
 
 **Upgrading an existing database?** Back it up, then run `migrations/003_limits_and_repayments.sql` once. It keeps everyone's balance exactly as it is (dinaus ticked "paid" become full repayments) and starts the credit limit at K20.00, which you can change on the screen. Customers already over the limit keep their balance; the limit only stops *new* dinaus.
 
@@ -41,4 +49,5 @@ php scripts/test_limits.php http://localhost:8000 iven "your-password"   # limit
 | `assets/js/app.js`, `assets/css/app.css` | The screen |
 | `schema.sql`, `migrations/` | Database |
 | `scripts/` | Command-line helpers and tests (never upload) |
+| `.github/workflows/` | CI (tests) and auto-deploy to InfinityFree on push to `main` |
 | `tests/` | Unit tests |
