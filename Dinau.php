@@ -60,7 +60,7 @@ $e = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
           </div>
           <div class="field field-note">
             <label for="note">What for? <span class="optional">optional</span></label>
-            <input type="text" id="note" name="note" maxlength="200" placeholder="e.g. 2 pies and a drink" autocomplete="off">
+            <input type="text" id="note" name="note" maxlength="200" placeholder="Eg: Bu" autocomplete="off">
           </div>
         </div>
 
